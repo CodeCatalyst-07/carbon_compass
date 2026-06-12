@@ -37,7 +37,21 @@ const browserBackend: StorageBackend = {
 type Listener = () => void;
 const listeners = new Set<Listener>();
 
+/**
+ * Snapshot cache for useSyncExternalStore.
+ * React's useSyncExternalStore requires getSnapshot to return the SAME
+ * reference if the data hasn't changed. Without this cache, each call
+ * to loadData() parses JSON and creates a new object, causing infinite
+ * re-render loops.
+ */
+let _cachedSnapshot: StoredData | null = null;
+
+function invalidateCache(): void {
+  _cachedSnapshot = null;
+}
+
 function notifyListeners(): void {
+  invalidateCache();
   for (const listener of listeners) {
     listener();
   }
@@ -52,37 +66,99 @@ export function subscribe(listener: Listener): () => void {
 
 // ─── Core Read / Write ───
 
+/** Result of loading data with recovery status (amendment 5). */
+export interface LoadResult {
+  data: StoredData;
+  /** 'loaded' = valid data, 'recovered' = corrupt data reset, 'fresh' = no stored data */
+  status: 'loaded' | 'recovered' | 'fresh';
+  /** Human-readable explanation when status is 'recovered'. */
+  recoveryReason?: string;
+}
+
 /**
- * Read stored data from the backend.
- * - Parses JSON and validates with Zod.
- * - Migrates from older schema versions.
- * - Returns default data if storage is empty, corrupt, or invalid.
+ * Load data with explicit recovery status.
+ * Use this to detect corrupt storage and notify the user.
  */
-export function loadData(backend: StorageBackend = browserBackend): StoredData {
+export function loadDataWithStatus(backend: StorageBackend = browserBackend): LoadResult {
   try {
     const raw = backend.getItem(STORAGE_KEY);
     if (!raw) {
-      return createDefaultStoredData();
+      return { data: createDefaultStoredData(), status: 'fresh' };
     }
 
-    const parsed: unknown = JSON.parse(raw);
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return {
+        data: createDefaultStoredData(),
+        status: 'recovered',
+        recoveryReason:
+          'Your saved data was corrupted and could not be read. A fresh start has been created.',
+      };
+    }
+
     if (typeof parsed !== 'object' || parsed === null) {
-      return createDefaultStoredData();
+      return {
+        data: createDefaultStoredData(),
+        status: 'recovered',
+        recoveryReason:
+          'Your saved data was in an unexpected format. A fresh start has been created.',
+      };
     }
 
     // Try direct validation first (fast path)
     const directResult = StoredDataSchema.safeParse(parsed);
     if (directResult.success) {
-      return directResult.data;
+      return { data: directResult.data, status: 'loaded' };
     }
 
     // Try migration from older version
     const migrated = migrateOrDefault(parsed as Record<string, unknown>);
-    return migrated;
+    // If migration fell back to defaults (no profile, no snapshots) but there WAS data, it's a recovery
+    const hadData =
+      (parsed as Record<string, unknown>).profile !== undefined ||
+      Array.isArray((parsed as Record<string, unknown>).snapshots);
+    const isRecovery = hadData && migrated.profile === null && migrated.snapshots.length === 0;
+
+    if (isRecovery) {
+      return {
+        data: migrated,
+        status: 'recovered',
+        recoveryReason:
+          'Your saved data could not be fully recovered. Some data may have been reset.',
+      };
+    }
+
+    return { data: migrated, status: 'loaded' };
   } catch {
-    // Corrupt JSON or other error — start fresh
-    return createDefaultStoredData();
+    return {
+      data: createDefaultStoredData(),
+      status: 'recovered',
+      recoveryReason:
+        'An unexpected error occurred while reading your data. A fresh start has been created.',
+    };
   }
+}
+
+/**
+ * Read stored data from the backend.
+ * Returns a CACHED reference when using the default browser backend,
+ * ensuring useSyncExternalStore reference stability.
+ * Custom backends (used in tests) bypass the cache.
+ */
+export function loadData(backend: StorageBackend = browserBackend): StoredData {
+  // Only cache for the default browser backend
+  if (backend === browserBackend) {
+    if (_cachedSnapshot !== null) {
+      return _cachedSnapshot;
+    }
+    const result = loadDataWithStatus(backend);
+    _cachedSnapshot = result.data;
+    return _cachedSnapshot;
+  }
+  // Custom backends bypass cache (test environments)
+  return loadDataWithStatus(backend).data;
 }
 
 /**

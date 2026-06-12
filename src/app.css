@@ -11,7 +11,7 @@
   --color-ink: #0e0f0c;
   --color-ink-deep: #163300;
   --color-body: #454745;
-  --color-mute: #868685;
+  --color-mute: #5d5d5d;
 
   --color-canvas: #ffffff;
   --color-canvas-soft: #e8ebe6;
@@ -63,6 +63,24 @@
 
   /* ─── Container ─── */
   --container-max: 1200px;
+
+  /* ─── Widths (prevent spacing scale fallback) ─── */
+  --width-xs: 20rem;
+  --width-sm: 24rem;
+  --width-md: 28rem;
+  --width-lg: 32rem;
+  --width-xl: 36rem;
+  --width-2xl: 42rem;
+  --width-3xl: 48rem;
+
+  /* ─── Max Widths (prevent spacing scale fallback) ─── */
+  --max-width-xs: 20rem;
+  --max-width-sm: 24rem;
+  --max-width-md: 28rem;
+  --max-width-lg: 32rem;
+  --max-width-xl: 36rem;
+  --max-width-2xl: 42rem;
+  --max-width-3xl: 48rem;
 }
 
 /* ─── Base Styles ─── */
@@ -129,4 +147,107 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ─── Animations ─── */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@utility animate-fade-in {
+  animation: fade-in 0.3s ease-out both;
+}
+
+@utility animate-slide-in {
+  animation: slide-in-right 0.25s ease-out both;
+}
+
+@utility animate-toast-enter {
+  animation: toast-enter 0.2s ease-out both;
+}
+
+@utility animate-toast-exit {
+  animation: toast-exit 0.15s ease-in both;
+}
+
+@utility animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* ─── Card Hover / Interactive States ─── */
+
+@utility card-interactive {
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.card-interactive:hover {
+  box-shadow: 0 4px 24px rgba(14, 15, 12, 0.08);
+  transform: translateY(-1px);
+}
+
+/* ─── Screen Reader Only ─── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }

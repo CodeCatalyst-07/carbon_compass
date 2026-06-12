@@ -1,63 +1,61 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
-import { useLocalStore } from './ui/hooks/use-local-store';
+import { ToastProvider } from './ui/hooks/use-toast';
+import { useLocalStore, useRecoveryCheck } from './ui/hooks/use-local-store';
+import { useToast } from './ui/hooks/use-toast';
+import { AppShell } from './ui/layouts/app-shell';
+import { OnboardingPage } from './ui/pages/onboarding';
+import { DashboardPage } from './ui/pages/dashboard';
+import { ActionsPage } from './ui/pages/actions';
+import { SimulatorPage } from './ui/pages/simulator';
+import { ProgressPage } from './ui/pages/progress';
+import { MethodologyPage } from './ui/pages/methodology';
 
-/**
- * Placeholder pages — will be implemented in later phases.
- * Each route has a minimal stub to verify routing works.
- */
-function QuestionnairePage() {
-  return (
-    <main
-      id="main-content"
-      className="min-h-screen bg-canvas-soft flex items-center justify-center p-xl"
-    >
-      <div className="bg-canvas rounded-xl p-xl max-w-lg w-full text-center">
-        <h1 className="font-display text-2xl font-black text-ink mb-md">Carbon Compass</h1>
-        <p className="text-body text-base leading-relaxed">
-          Your carbon footprint coach. Questionnaire coming in Phase 3.
-        </p>
-      </div>
-    </main>
-  );
-}
-
-function DashboardPage() {
-  return (
-    <main
-      id="main-content"
-      className="min-h-screen bg-canvas-soft flex items-center justify-center p-xl"
-    >
-      <div className="bg-canvas rounded-xl p-xl max-w-lg w-full text-center">
-        <h1 className="font-display text-2xl font-black text-ink mb-md">Dashboard</h1>
-        <p className="text-body text-base leading-relaxed">
-          Results will appear here after Phase 4.
-        </p>
-      </div>
-    </main>
+function RootRedirect() {
+  const { data } = useLocalStore();
+  return data.profile ? (
+    <Navigate to="/dashboard" replace />
+  ) : (
+    <Navigate to="/onboarding" replace />
   );
 }
 
 /**
- * Root application component.
- * Routes to questionnaire if no profile exists, dashboard if one does.
+ * App-level recovery check (amendment 5).
+ * Runs once on mount and shows a toast if corrupt storage was recovered.
  */
-export function App() {
-  const store = useLocalStore();
-  const hasProfile = store.data.profile !== null;
+function RecoveryNotifier() {
+  const { wasRecovered, recoveryReason } = useRecoveryCheck();
+  const { addToast } = useToast();
 
+  useEffect(() => {
+    if (wasRecovered && recoveryReason) {
+      addToast(recoveryReason, 'error');
+    }
+    // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return null;
+}
+
+export default function App() {
   return (
     <BrowserRouter>
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
-      <Routes>
-        <Route
-          path="/"
-          element={hasProfile ? <Navigate to="/dashboard" replace /> : <QuestionnairePage />}
-        />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        {/* Additional routes added in later phases */}
-      </Routes>
+      <ToastProvider>
+        <RecoveryNotifier />
+        <Routes>
+          <Route path="/" element={<RootRedirect />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route element={<AppShell />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/actions" element={<ActionsPage />} />
+            <Route path="/simulator" element={<SimulatorPage />} />
+            <Route path="/progress" element={<ProgressPage />} />
+            <Route path="/methodology" element={<MethodologyPage />} />
+          </Route>
+        </Routes>
+      </ToastProvider>
     </BrowserRouter>
   );
 }

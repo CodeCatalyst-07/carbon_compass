@@ -1,7 +1,8 @@
-import { useSyncExternalStore, useCallback } from 'react';
+import { useSyncExternalStore, useCallback, useState } from 'react';
 import {
   subscribe,
   loadData,
+  loadDataWithStatus,
   saveProfile,
   addSnapshot,
   deleteSnapshot,
@@ -9,6 +10,7 @@ import {
   updateSettings,
   deleteAllData,
   exportDataAsJSON,
+  importData,
 } from '../../storage/adapter';
 import type {
   StoredData,
@@ -26,6 +28,7 @@ interface LocalStoreActions {
   updateSettings: (updates: Partial<Settings>) => void;
   deleteAllData: () => void;
   exportDataAsJSON: () => string;
+  importData: (data: StoredData) => void;
 }
 
 interface LocalStoreReturn extends LocalStoreActions {
@@ -53,5 +56,24 @@ export function useLocalStore(): LocalStoreReturn {
     updateSettings: useCallback((updates: Partial<Settings>) => updateSettings(updates), []),
     deleteAllData: useCallback(() => deleteAllData(), []),
     exportDataAsJSON: useCallback(() => exportDataAsJSON(), []),
+    importData: useCallback((d: StoredData) => importData(d), []),
   };
+}
+
+export function useRecoveryCheck(): {
+  wasRecovered: boolean;
+  recoveryReason?: string;
+} {
+  const [recovery] = useState(() => {
+    const result = loadDataWithStatus();
+    if (result.status === 'recovered') {
+      return {
+        wasRecovered: true,
+        recoveryReason: result.recoveryReason,
+      };
+    }
+    return { wasRecovered: false };
+  });
+
+  return recovery;
 }
