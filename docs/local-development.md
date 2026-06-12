@@ -19,9 +19,16 @@ All deterministic calculations, recommendations, and features work. The AI panel
 npm install -g firebase-tools
 ```
 
-### 2. Configure Secrets for Emulator
+### 2. Configure the Backend-Only Gemini Key
 
-Copy the secret template and add your API key:
+> [!CAUTION]
+> **The Gemini API key must NEVER appear in frontend env variables.**
+> Do NOT create `VITE_GEMINI_API_KEY` or any `VITE_` secret variable.
+> The key belongs exclusively in backend files inside `functions/`.
+
+You have two equivalent options for providing the key to the emulator:
+
+**Option A — `.secret.local`** (emulator-native secrets):
 
 ```bash
 cp functions/.secret.local.example functions/.secret.local
@@ -33,16 +40,33 @@ Edit `functions/.secret.local`:
 GEMINI_API_KEY=your-actual-gemini-api-key
 ```
 
-> **Note**: Use `functions/.secret.local` (not `functions/.env`) for emulator secret overrides (amendment 4). This file is gitignored.
+**Option B — `.env.local`** (emulator environment variables):
+
+```bash
+cp functions/.env.local.example functions/.env.local
+```
+
+Edit `functions/.env.local`:
+
+```
+GEMINI_API_KEY=your-actual-gemini-api-key
+GEMINI_MODEL=gemini-2.5-flash-lite
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+```
+
+> **Note**: Both `functions/.secret.local` and `functions/.env.local` are gitignored.
+> Get a free API key at [Google AI Studio](https://aistudio.google.com/apikey).
 
 ### 3. Optionally Set Non-Secret Config
 
-Create `functions/.env` for non-secret configuration:
+If you used Option A above, you can create `functions/.env` for non-secret configuration:
 
 ```
 GEMINI_MODEL=gemini-2.5-flash-lite
 CORS_ORIGINS=http://localhost:5173,http://localhost:5000
 ```
+
+If you used Option B, these are already included in your `.env.local`.
 
 ### 4. Build and Start Functions
 
@@ -56,12 +80,11 @@ cd ..
 ### 5. Start Emulator
 
 ```bash
-firebase emulators:start
+firebase emulators:start --only functions
 ```
 
 This starts:
 - Functions emulator on `http://localhost:5001`
-- Hosting emulator on `http://localhost:5000`
 - Emulator UI at `http://localhost:4000`
 
 ### 6. Configure Frontend
@@ -79,12 +102,34 @@ VITE_AI_ENDPOINT=http://localhost:5001/your-project-id/us-central1/insights
 ```
 
 > `VITE_AI_ENDPOINT` is public build configuration, not a secret (amendment 13).
+> Replace `your-project-id` with the value from `.firebaserc`.
 
 ### 7. Start Frontend
 
 In a separate terminal:
 
 ```bash
+npm run dev
+```
+
+### 8. Expected Behavior
+
+| Frontend `.env` state | What you see |
+|---|---|
+| `VITE_AI_ENDPOINT=` (empty) | App works normally. "Get AI Insights" button is hidden. |
+| `VITE_AI_ENDPOINT=http://localhost:5001/...` | "Get AI Insights" button appears on the dashboard. |
+| Emulator running + key configured | Clicking the button returns live AI insights. |
+| Emulator running + key **not** configured | Clicking the button shows "AI service is not configured" (503). |
+
+### Convenience Scripts
+
+You can run the frontend and emulator in two terminals:
+
+```bash
+# Terminal 1 — Functions emulator
+cd functions && npm run build && cd .. && firebase emulators:start --only functions
+
+# Terminal 2 — Frontend dev server
 npm run dev
 ```
 
@@ -132,3 +177,13 @@ npx playwright test
 npm run build
 grep -r "GEMINI_API_KEY" dist/ && echo "FAIL" || echo "PASS: No secrets in build"
 ```
+
+## Security Checklist
+
+Before committing, verify:
+
+1. **No real API keys committed**: `grep -r "AIza" . --include="*.ts" --include="*.env*"`
+2. **No VITE_GEMINI_API_KEY anywhere**: `grep -r "VITE_GEMINI_API_KEY" .`
+3. **No secrets in dist/**: `grep -r "GEMINI_API_KEY" dist/`
+4. **Frontend only uses VITE_AI_ENDPOINT**: `grep -r "VITE_" src/ | grep -v "VITE_AI_ENDPOINT"`
+5. **Example files have no real keys**: Check `functions/.secret.local.example` and `functions/.env.local.example`

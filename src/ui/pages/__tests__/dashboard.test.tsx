@@ -10,6 +10,13 @@ import type { StoredData } from '../../../storage/schemas';
 let mockData: StoredData = createDefaultStoredData();
 const listeners = new Set<() => void>();
 
+vi.mock('../../../ai/config', () => ({
+  AI_ENDPOINT: '',
+  AI_COOLDOWN_MS: 30000,
+  AI_CACHE_TTL_MS: 7 * 24 * 60 * 60 * 1000,
+  isAIConfigured: () => false,
+}));
+
 vi.mock('../../../storage/adapter', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../storage/adapter')>();
   return {

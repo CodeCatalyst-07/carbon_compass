@@ -14,7 +14,11 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"*.{json,js,ts}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"*.{json,js,ts}\"",
     "secret-scan": "vitest run src/ai/__tests__/no-api-key-in-build.test.ts",
-    "postbuild": "npm run secret-scan"
+    "postbuild": "npm run secret-scan",
+    "build:ai-core": "npm run build --prefix packages/ai-core",
+    "build:server": "npm run build:ai-core && npm run build --prefix server",
+    "start:server": "node server/dist/index.js",
+    "dev:server": "npm run dev --prefix server"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",

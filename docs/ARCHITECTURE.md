@@ -6,7 +6,7 @@ Carbon Compass is a privacy-first, no-login carbon footprint tracking and coachi
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                     Browser (Client SPA)                     │
+│            Browser (Client SPA) — deployed on Vercel         │
 │                                                              │
 │  ┌──────────┐   ┌───────────┐   ┌─────────┐   ┌──────────┐ │
 │  │  Domain   │   │  Storage   │   │   AI     │   │    UI    │ │
@@ -18,18 +18,34 @@ Carbon Compass is a privacy-first, no-login carbon footprint tracking and coachi
 │       └───────────────┴────│ localStorage │─────────┘        │
 │                            └──────────────┘                  │
 └──────────────────────────────────────────────────────────────┘
-                               │ (opt-in, POST /insights)
+                               │ VITE_AI_ENDPOINT (opt-in)
+                               │ POST /insights
                                ▼
-                   ┌─────────────────────┐
-                   │  Firebase Cloud Fn   │
-                   │  (Gemini 2.5 Flash Lite)  │
-                   └─────────────────────┘
+            ┌──────────────────────────────────────┐
+            │  Express Server — deployed on Render  │  ← PRODUCTION
+            │  server/src/app.ts                    │
+            │                                      │
+            │  ┌────────────────────────────────┐  │
+            │  │    @carbon-compass/ai-core      │  │
+            │  │  schemas · prompt · middleware  │  │
+            │  │  gemini-client · cache · rate   │  │
+            │  └────────────────────────────────┘  │
+            │              │                        │
+            │              ▼                        │
+            │     Gemini 2.5 Flash Lite             │
+            └──────────────────────────────────────┘
+
+            ┌──────────────────────────────────────┐
+            │  Firebase Cloud Function (OPTIONAL)   │  ← Legacy
+            │  functions/src/index.ts               │
+            │  also uses @carbon-compass/ai-core    │
+            └──────────────────────────────────────┘
 ```
 
 ## Directory Structure
 
 ```
-src/
+src/                         # Vite/React frontend (deployed on Vercel)
 ├── domain/                  # Pure business logic (no React imports)
 │   ├── calculator/          # Per-category calculators + aggregator
 │   │   ├── calculator.ts    # Aggregate: UserProfile → FootprintResult
@@ -78,15 +94,25 @@ src/
 ├── main.tsx                 # App entry point + providers
 └── index.css                # Tailwind v4 @theme tokens + base styles
 
-functions/                   # Firebase Cloud Function (server-side)
+packages/
+└── ai-core/                 # Shared AI backend logic (single source of truth)
+    └── src/
+        ├── index.ts          # Barrel export
+        ├── schemas.ts        # Request/response Zod schemas + JSON Schema
+        ├── prompt.ts         # System instruction + user message builder
+        ├── gemini-client.ts  # Gemini API wrapper + repair logic
+        ├── cache.ts          # Server-side response cache
+        ├── rate-limiter.ts   # In-memory per-IP rate limiter
+        └── middleware.ts     # CORS, method, content-type, body-size checks
+
+server/                      # Express server (PRODUCTION — deployed on Render)
 └── src/
-    ├── index.ts             # HTTP handler: POST /insights
-    ├── middleware.ts         # CORS, method, content-type, body size checks
-    ├── rate-limiter.ts       # In-memory per-IP rate limiter
-    ├── gemini-client.ts      # Gemini API wrapper + repair logic
-    ├── prompt.ts             # System instruction + user message builder
-    ├── cache.ts              # Server-side response cache
-    └── schemas.ts            # Request/response Zod schemas + JSON Schema
+    ├── app.ts               # Express app: GET /health + POST /insights
+    └── index.ts             # Entry point: listen on process.env.PORT || 10000
+
+functions/                   # Firebase Cloud Function (OPTIONAL — local/legacy)
+└── src/
+    └── index.ts             # Firebase-specific wiring only; imports @carbon-compass/ai-core
 ```
 
 ## Dependency Rules
@@ -98,7 +124,9 @@ functions/                   # Firebase Cloud Function (server-side)
 | `ai/` | `storage/schemas`, `domain/factors`, `lib/` | `ui/` |
 | `ui/` | All layers | — |
 | `lib/` | Nothing project-internal | `react`, `ui/`, `domain/` |
-| `functions/` | Its own `schemas.ts`, `@google/genai` | Any client code |
+| `packages/ai-core/` | `@google/genai`, `zod` | Any client or framework code |
+| `functions/` | `@carbon-compass/ai-core`, `firebase-functions` | Any client code |
+| `server/` | `@carbon-compass/ai-core`, `express` | Any client code |
 
 ## Data Flow
 
@@ -142,15 +170,18 @@ Dashboard ("Get AI insights" button press)
          ├── Check client cache (7-day TTL)
          ├── If miss: POST {totals, categoryShares, topDrivers, rankedActions, constraints}
          │            to VITE_AI_ENDPOINT
-         │            └──→ Cloud Function
-         │                   ├── Middleware (CORS, method, size)
-         │                   ├── Rate limit (5/15min/IP, per-instance)
-         │                   ├── Zod validate request body
-         │                   ├── Check server cache
-         │                   ├── Gemini 2.5 Flash Lite (structured JSON, 12s timeout)
+         │            └──→ Cloud Function (or Render Server)
+         │                   ├── Middleware (CORS, method, size)         ┐
+         │                   ├── Rate limit           │ via
+         │                   ├── Zod validate request │ @carbon-compass
+         │                   ├── Check server cache   │ /ai-core
+         │                   ├── Gemini 2.5 Flash Lite (25s timeout)
          │                   ├── Zod validate + integrity check response
          │                   └──→ {summary, actionExplanations[], weeklyPlan[], caveat}
          └── Display in AI Insights Panel (text only, never HTML)
+
+See docs/render-deployment.md for Render setup, environment variables,
+CORS configuration, and Firebase legacy notes.
 ```
 
 ## Storage Design

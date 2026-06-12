@@ -3,6 +3,16 @@
  *
  * Single HTTP endpoint: POST /insights
  *
+ * All shared AI logic (middleware, rate limiter, cache, schemas,
+ * prompt, Gemini client) lives in @carbon-compass/ai-core.
+ * This file contains only Firebase-specific wiring:
+ *   - defineSecret / onRequest
+ *   - Emulator env fallback (amendment 14)
+ *   - Resource controls (region, timeout, memory, instances)
+ *
+ * Production AI backend: Render (see server/src/app.ts)
+ * Firebase Cloud Functions: optional / local development reference
+ *
  * Amendment 4 — Firebase secrets:
  * - GEMINI_API_KEY bound via defineSecret in onRequest options
  * - Read at runtime with GEMINI_API_KEY.value()
@@ -16,20 +26,31 @@
  * - Sanitized status codes for all error categories
  * - Never return SDK details, prompts, secrets, or stack traces
  * - Log only operational metadata
+ *
+ * Amendment 14 — Emulator env fallback:
+ * - In the emulator (FUNCTIONS_EMULATOR=true), fall back to process.env
+ *   when defineSecret().value() throws or returns empty
+ * - Allows local testing with functions/.env.local or functions/.secret.local
+ * - Does not weaken production secret handling
  */
 
 import { onRequest } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
-import { runMiddleware } from './middleware.js';
-import { checkRateLimit } from './rate-limiter.js';
-import { generateServerCacheKey, getCached, setCached } from './cache.js';
 import {
+  runMiddleware,
+  checkRateLimit,
+  generateServerCacheKey,
+  getCached,
+  setCached,
   InsightsRequestSchema,
   validateResponseIntegrity,
   type InsightsResponse,
-} from './schemas.js';
-import { SYSTEM_INSTRUCTION, buildUserMessage, PROMPT_VERSION } from './prompt.js';
-import { createGeminiClient, GeminiError } from './gemini-client.js';
+  SYSTEM_INSTRUCTION,
+  buildUserMessage,
+  PROMPT_VERSION,
+  createGeminiClient,
+  GeminiError,
+} from '@carbon-compass/ai-core';
 
 // ─── Secrets (amendment 4) ───
 const GEMINI_API_KEY = defineSecret('GEMINI_API_KEY');
@@ -129,20 +150,28 @@ export const insights = onRequest(
       return;
     }
 
-    // 5. Call Gemini (amendment 3, 4)
-    let apiKey: string;
+    // 5. Resolve API key (amendment 3, 4, 14)
+    // Production: defineSecret binds the key via Cloud Secret Manager.
+    // Emulator: defineSecret reads functions/.secret.local; fall back to
+    //           process.env so functions/.env.local also works for local dev.
+    //           The fallback only activates when FUNCTIONS_EMULATOR === 'true'.
+    let apiKey: string | undefined;
     try {
       apiKey = GEMINI_API_KEY.value();
     } catch {
-      console.log(
-        JSON.stringify({
-          event: 'config_error',
-          requestId,
-          reason: 'secret_unavailable',
-        }),
-      );
-      res.status(503).json({ error: 'AI service is not configured.' });
-      return;
+      // defineSecret.value() throws when the secret is unavailable.
+      // In the emulator, try process.env as a fallback.
+      if (process.env.FUNCTIONS_EMULATOR === 'true') {
+        apiKey = process.env.GEMINI_API_KEY;
+      }
+    }
+
+    if (!apiKey) {
+      // Last-chance emulator fallback (covers the case where .value()
+      // returns empty string but the key is in process.env).
+      if (process.env.FUNCTIONS_EMULATOR === 'true') {
+        apiKey = process.env.GEMINI_API_KEY;
+      }
     }
 
     if (!apiKey) {
@@ -150,7 +179,7 @@ export const insights = onRequest(
         JSON.stringify({
           event: 'config_error',
           requestId,
-          reason: 'empty_api_key',
+          reason: 'api_key_unavailable',
         }),
       );
       res.status(503).json({ error: 'AI service is not configured.' });

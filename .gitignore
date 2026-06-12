@@ -33,6 +33,14 @@ blob-report/
 functions/lib/
 functions/node_modules/
 
+# Render server
+server/dist/
+server/node_modules/
+
+# Shared AI core build output
+packages/ai-core/lib/
+packages/ai-core/node_modules/
+
 # Environment and secrets
 .env
 .env.local
@@ -40,3 +48,4 @@ functions/node_modules/
 functions/.env
 functions/.env.local
 functions/.secret.local
+server/.env
