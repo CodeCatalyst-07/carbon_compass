@@ -20,8 +20,8 @@ jobs:
       - run: npm run format:check
       - run: npm run typecheck
       - run: npm run lint
-      - run: npm test
       - run: npm run build  # includes secret-scan via postbuild
+      - run: npm test
 
   ai-core-quality:
     name: AI Core Quality
