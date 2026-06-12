@@ -2,7 +2,7 @@
 
 A privacy-first carbon footprint awareness and action platform designed to help individuals understand, track, simulate, and reduce their personal carbon emissions through deterministic, source-backed calculations and optional AI-powered explanations.
 
-[![CI](https://github.com/your-org/carbon-compass/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/carbon-compass/actions/workflows/ci.yml)
+[![CI](https://github.com/CodeCatalyst-07/carbon_compass/actions/workflows/ci.yml/badge.svg)](https://github.com/CodeCatalyst-07/carbon_compass/actions/workflows/ci.yml)
 [![Vercel Deployment](https://img.shields.io/badge/Frontend-Vercel-success?style=flat-square&logo=vercel)](https://carbon-compass-alpha.vercel.app)
 [![Render Backend](https://img.shields.io/badge/Backend-Render-blue?style=flat-square&logo=render)](https://carbon-compass-3ag7.onrender.com/health)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
@@ -242,7 +242,7 @@ $$\text{Composite Score} = 0.35 \times \text{Impact} + 0.20 \times \text{Context
 * **Zero Tracking & Analytics:** We do not use Google Analytics or other third-party tracking scripts.
 * **No Database:** No user profiles, carbon estimates, or snapshots are saved on our servers. All state resides in the user's browser via `localStorage`.
 * **API Key Protection:** The Gemini API key is stored strictly on the server and is never sent to the client.
-* **Security Controls:** The backend features a CORS origin allowlist, request payload size limits (capped at 1MB), and rate limiters to protect the Render instance.
+* **Security Controls:** The backend features a CORS origin allowlist, request payload size limits (capped at 8 KB for AI requests), and rate limiters to protect the Render instance.
 * **Automated Security Scans:** An automated build check runs a secret scanner test (`src/ai/__tests__/no-api-key-in-build.test.ts`) to ensure no API keys are accidentally compiled into the production frontend bundle.
 
 ---

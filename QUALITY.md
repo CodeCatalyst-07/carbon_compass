@@ -100,7 +100,7 @@ Both `server/` and `functions/` import from `@carbon-compass/ai-core` — they n
 - **No database.** All user data is stored in the browser via `localStorage`.
 - **API key protection.** The Gemini API key is stored exclusively in server-side environment variables. It is never bundled into the client.
 - **Automated secret scan.** A build-time test (`src/ai/__tests__/no-api-key-in-build.test.ts`) scans the production bundle output for leaked API key patterns. Runs automatically via `postbuild`.
-- **Backend security controls.** CORS origin allowlist, 1 MB request payload size limit, per-IP rate limiting.
+- **Backend security controls.** CORS origin allowlist, 8 KB AI request payload size limit, per-IP rate limiting.
 - **No dangerous HTML rendering.** AI responses are rendered as plain React text nodes. `dangerouslySetInnerHTML` is never used for AI content.
 
 ---
