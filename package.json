@@ -18,7 +18,16 @@
     "build:ai-core": "npm run build --prefix packages/ai-core",
     "build:server": "npm run build:ai-core && npm run build --prefix server",
     "start:server": "node server/dist/index.js",
-    "dev:server": "npm run dev --prefix server"
+    "dev:server": "npm run dev --prefix server",
+    "check": "npm run format:check && npm run typecheck && npm run lint && npm test && npm run build",
+    "check:ai-core": "cd packages/ai-core && npm run format:check && npm run typecheck && npm run lint && npm test && npm run build",
+    "check:server": "npm run build:ai-core && cd server && npm run format:check && npm run typecheck && npm run lint && npm test && npm run build",
+    "check:functions": "npm run build:ai-core && cd functions && npm run format:check && npm run typecheck && npm run lint && npm test && npm run build",
+    "check:all": "npm run check && npm run check:ai-core && npm run check:server && npm run check:functions",
+    "test:all": "npm test && cd packages/ai-core && npm test && cd ../.. && cd server && npm test && cd .. && cd functions && npm test",
+    "build:all": "npm run build:ai-core && npm run build && npm run build:server && cd functions && npm run build",
+    "lint:all": "npm run lint && cd packages/ai-core && npm run lint && cd ../.. && cd server && npm run lint && cd .. && cd functions && npm run lint",
+    "format:all": "npm run format:check && cd packages/ai-core && npm run format:check && cd ../.. && cd server && npm run format:check && cd .. && cd functions && npm run format:check"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",

@@ -49,3 +49,9 @@ functions/.env
 functions/.env.local
 functions/.secret.local
 server/.env
+
+# Build caches
+*.tsbuildinfo
+
+# Firebase debug log
+firebase-debug.log

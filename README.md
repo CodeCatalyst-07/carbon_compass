@@ -2,6 +2,7 @@
 
 A privacy-first carbon footprint awareness and action platform designed to help individuals understand, track, simulate, and reduce their personal carbon emissions through deterministic, source-backed calculations and optional AI-powered explanations.
 
+[![CI](https://github.com/your-org/carbon-compass/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/carbon-compass/actions/workflows/ci.yml)
 [![Vercel Deployment](https://img.shields.io/badge/Frontend-Vercel-success?style=flat-square&logo=vercel)](https://carbon-compass-alpha.vercel.app)
 [![Render Backend](https://img.shields.io/badge/Backend-Render-blue?style=flat-square&logo=render)](https://carbon-compass-3ag7.onrender.com/health)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
@@ -57,6 +58,62 @@ Here is how each pillar of the problem statement is mapped to the platform's cor
 12. **Accessibility & Responsive Design:** Fully responsive layout built with semantic HTML landmarks, skip links, screen-reader tables, keyboard accessibility, and a modern design system.
 
 ---
+
+## Repository Map
+
+```
+src/domain/              Pure calculator + recommendation engine (no framework imports)
+src/storage/             localStorage schemas, adapters, migrations, CSV/JSON export
+src/ai/                  Frontend AI adapter, client-side cache, React hook
+src/ui/                  React components, pages, layouts, hooks
+src/lib/                 Shared utilities (class merging, hashing, demo data)
+packages/ai-core/        Shared backend AI logic: schemas, Gemini client, cache, rate-limit, middleware
+server/                  Render Express backend (production AI proxy)
+functions/               Optional Firebase Cloud Functions wrapper (legacy/reference)
+docs/                    Architecture, methodology, deployment guides, demo script
+e2e/                     Playwright end-to-end test specs
+```
+
+---
+
+## Code Quality & Maintainability
+
+Carbon Compass prioritises deterministic correctness, strict type safety, and explicit package boundaries. See [QUALITY.md](QUALITY.md) for the full quality philosophy and [docs/ARCHITECTURE_DECISIONS.md](docs/ARCHITECTURE_DECISIONS.md) for architecture decision records.
+
+**Key principles:**
+* All carbon calculations are pure, side-effect-free TypeScript — AI never computes emissions or changes rankings.
+* Zod schemas guard every external data boundary (localStorage, API requests/responses, JSON imports).
+* Strict layer dependency rules prevent domain logic from importing React or UI code.
+* The `@carbon-compass/ai-core` shared package is the single source of truth for backend AI logic.
+* A `postbuild` secret-scan test ensures no API keys leak into the client bundle.
+
+### Quality Commands
+
+| Command | Scope |
+|---|---|
+| `npm run check` | Frontend: format + typecheck + lint + test + build |
+| `npm run check:ai-core` | AI Core: format + typecheck + lint + test + build |
+| `npm run check:server` | Server: builds ai-core first, then full quality gate |
+| `npm run check:functions` | Functions: builds ai-core first, then full quality gate |
+| `npm run check:all` | All four packages sequentially |
+| `npm run test:all` | Unit/integration tests across all packages |
+| `npm run build:all` | Production builds for all packages |
+| `npm run lint:all` | Lint all packages |
+| `npm run format:all` | Format check all packages |
+
+### CI/CD
+
+GitHub Actions CI runs on every push to `main` and on pull requests. Four independent jobs verify each package:
+
+| Job | What It Checks |
+|---|---|
+| `frontend-quality` | Format, typecheck, lint, 255 tests, production build + secret scan |
+| `ai-core-quality` | Format, typecheck, lint, 76 tests, build |
+| `server-quality` | Builds ai-core → format, typecheck, lint, 12 tests, build |
+| `functions-quality` | Builds ai-core → format, typecheck, lint, 10 tests, build |
+
+See [`.github/workflows/ci.yml`](.github/workflows/ci.yml) for the full workflow.
+
 
 ## Google Services Usage
 
@@ -120,13 +177,18 @@ The AI integration is built from the ground up to prioritize user privacy, data 
 
 ---
 
-## System Architecture
+## Package Architecture
 
-The project is structured as a monorepo consisting of:
-* **`src/`:** The frontend client SPA built with React 19, Vite, and Tailwind CSS v4.
-* **`server/`:** An Express backend proxy server that acts as a secure intermediary for Google Gemini API calls.
-* **`packages/ai-core/`:** A shared workspace library containing the schemas, Gemini client configuration, caching layer, and rate-limiting middleware.
-* **`functions/`:** An optional Firebase Cloud Functions proxy server setup (used for reference and local testing).
+The project is structured as a monorepo with strict dependency boundaries:
+
+| Package | Platform | Description |
+|---|---|---|
+| `src/` (frontend) | Vercel | React 19 SPA with Vite and Tailwind CSS v4 |
+| `packages/ai-core/` | Shared library | Zod schemas, Gemini client, prompt builder, cache, rate-limiter, middleware |
+| `server/` | Render | Express proxy — production AI backend |
+| `functions/` | Firebase (optional/legacy) | Cloud Functions wrapper — reference implementation only |
+
+Both `server/` and `functions/` depend on `@carbon-compass/ai-core` as a local npm package. AI logic is never duplicated. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full dependency graph and data flow.
 
 ```
                [ User Input ]
@@ -185,26 +247,39 @@ $$\text{Composite Score} = 0.35 \times \text{Impact} + 0.20 \times \text{Context
 
 ---
 
-## Testing and Quality
+## Testing Matrix
 
 The project maintains a comprehensive automated testing suite across the entire stack:
 
-* **Frontend Unit & Integration Tests:** **255 tests** covering calculator formulas, dashboard views, simulator changes, and state logic.
-* **AI Core Shared Logic Tests:** **76 tests** validating prompt formats, JSON repair routines, caching, rate-limiters, and Zod schema boundaries.
-* **Render Express Server Tests:** **12 tests** covering health endpoints, CORS behaviors, and rate limiters.
-* **Firebase Cloud Functions Tests:** **10 tests** validating local API key resolution.
-* **Playwright End-to-End Tests:** **43 tests** verifying user flows (onboarding, dashboard updates, data import/export) and accessibility across desktop and mobile screens.
+### Unit & Integration Tests (CI-Enforced)
 
-**Total Automated Tests:** **396 passing tests**
+| Package | Tests | Coverage | Command |
+|---|---|---|---|
+| Frontend (`src/`) | 255 | Calculator formulas, dashboard views, simulator, state logic | `npm test` |
+| AI Core (`packages/ai-core/`) | 76 | Prompt formats, JSON repair, caching, rate-limiters, Zod schemas | `cd packages/ai-core && npm test` |
+| Server (`server/`) | 12 | Health endpoints, CORS, rate limiters | `cd server && npm test` |
+| Functions (`functions/`) | 10 | API key resolution, endpoint wiring | `cd functions && npm test` |
+| **Total** | **353** | | `npm run test:all` |
+
+### End-to-End Tests (Local/Maintained)
+
+| Suite | Tests | Coverage | Command |
+|---|---|---|---|
+| Playwright E2E | 43 | Onboarding flows, dashboard updates, data import/export, accessibility (Axe audits), desktop + mobile viewports | `npx playwright test` |
+
+**Grand total: 396 automated tests.**
+
+All unit and integration tests run in CI on every push and pull request. Playwright E2E tests are maintained as a local development suite.
 
 ```bash
-# To run the frontend and core unit/integration suite
-npm test
+# Full quality gate for all packages
+npm run check:all
 
-# To check type safety and code style
-npm run typecheck
-npm run lint
-npm run format:check
+# Run all unit/integration tests
+npm run test:all
+
+# Run E2E tests locally (requires built frontend)
+npm run build && npx playwright test
 ```
 
 ---
@@ -220,18 +295,26 @@ Carbon Compass is designed to meet WCAG AA accessibility standards:
 
 ---
 
-## Deployment Configuration
+## Deployment Architecture
 
-### Frontend (Vercel)
-Set the following environment variable in the Vercel Dashboard:
+| Component | Platform | URL | Notes |
+|---|---|---|---|
+| Frontend SPA | **Vercel** | [carbon-compass-alpha.vercel.app](https://carbon-compass-alpha.vercel.app) | Static React 19 build — no SSR |
+| AI Backend | **Render** | [carbon-compass-3ag7.onrender.com](https://carbon-compass-3ag7.onrender.com/health) | Express proxy to Gemini API |
+| Firebase Functions | N/A | Not deployed | Optional/legacy reference only |
+
+The frontend and backend are independently deployable. The frontend works fully without the backend — AI features degrade gracefully.
+
+### Frontend Environment (Vercel)
 * `VITE_AI_ENDPOINT` = `https://your-render-service.onrender.com/insights`
 
-### Backend (Render Web Service)
-Set the following variables in the Render environment settings:
-* `GEMINI_API_KEY` = `your_google_gemini_api_key`
+### Backend Environment (Render)
+* `GEMINI_API_KEY` = Server-side only — never bundled into the client
 * `GEMINI_MODEL` = `gemini-2.5-flash-lite` (Default)
 * `CORS_ORIGINS` = `https://your-app.vercel.app` (Comma-separated allowed domains)
 * `NODE_VERSION` = `22`
+
+**Important:** There is no `VITE_GEMINI_API_KEY` — this is intentional by design. All API keys are backend-only.
 
 ---
 
@@ -271,11 +354,14 @@ Follow these steps to run the frontend and backend locally:
 ## Documentation Links
 
 * [Architecture Overview](docs/ARCHITECTURE.md) — Detailed design, monorepo dependency graph, and data flow.
+* [Architecture Decisions](docs/ARCHITECTURE_DECISIONS.md) — ADR-style records for key design choices.
 * [Calculation Methodology](docs/METHODOLOGY.md) — Formula references, factors, and ranking scores.
 * [Interactive Demo Script](docs/DEMO_SCRIPT.md) — Step-by-step scripts for presenting the application.
 * [Render Backend Deployment](docs/render-deployment.md) — Comprehensive guide to setting up Render services.
 * [Local Development Guide](docs/local-development.md) — Instructions for setting up development environments.
 * [Firebase Functions Reference](docs/firebase-setup.md) — Guide for legacy/optional Firebase setup.
+* [Code Quality](QUALITY.md) — Quality philosophy, layer boundaries, test strategy, and future-changes checklist.
+* [Contributing Guide](CONTRIBUTING.md) — Local setup, PR workflow, coding standards, and package boundaries.
 
 ---
 
@@ -292,9 +378,9 @@ Follow these steps to run the frontend and backend locally:
 
 ## Why Carbon Compass Fits the Challenge
 
-* **Smart Dynamic Assistant:** Optional Google Gemini API integration acts as a responsive personal footprint coach, generating tailormade starter plans.
+* **Smart Dynamic Assistant:** Optional Google Gemini API integration acts as a responsive personal footprint coach, generating tailored starter plans. AI explains but never calculates emissions or changes recommendation rankings.
 * **Context-Aware Recommendations:** A custom multi-criteria scoring algorithm and direct Google Maps action links make suggestions highly actionable.
-* **Meaningful Google Ecosystem Integration:** Leverages Gemini (advisory explanations), Google Maps (privacy-safe local routing/directions search), Google Fonts, and optional Firebase Functions support.
+* **Meaningful Google Ecosystem Integration:** Leverages Gemini (advisory explanations), Google Maps (privacy-safe local routing/directions search), Google Fonts, and optional Firebase Functions support. No Google Analytics.
 * **Practical Usability:** Offers immediate value with frictionless, no-login onboarding, data portability, and progress simulation.
 * **Privacy-First Architecture:** Eliminates data tracking, databases, and login requirements. User data remains on the user's device.
-* **Clean, Fully-Tested Codebase:** Over 390+ automated tests check calculations, integration flows, and accessibility across all major screen sizes.
+* **Clean, Fully-Tested Codebase:** 353 unit/integration tests + 43 Playwright E2E tests across all packages. CI enforces format, typecheck, lint, test, and build on every push.
