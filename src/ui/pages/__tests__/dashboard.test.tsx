@@ -75,7 +75,7 @@ describe('DashboardPage', () => {
   it('shows AI unavailable notice (amendment 12)', () => {
     mockData = { ...createDefaultStoredData(), profile: DEMO_PROFILE };
     renderDashboard();
-    expect(screen.getByText(/AI-powered insights are not yet available/i)).toBeInTheDocument();
+    expect(screen.getByText(/AI-powered insights are not configured/i)).toBeInTheDocument();
   });
 
   it('shows action buttons', () => {

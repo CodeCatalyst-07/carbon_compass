@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useId, type ReactNode } from 'react';
 import { cn } from '../../lib/cn';
 
 interface ModalProps {
@@ -18,6 +18,7 @@ interface ModalProps {
  */
 export function Modal({ isOpen, onClose, title, children, className }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -71,10 +72,10 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
         className,
       )}
       onClick={handleBackdropClick}
-      aria-labelledby="modal-title"
+      aria-labelledby={titleId}
     >
       <header className="flex items-center justify-between">
-        <h2 id="modal-title" className="text-xl font-semibold text-ink">
+        <h2 id={titleId} className="text-xl font-semibold text-ink">
           {title}
         </h2>
         <button
@@ -96,3 +97,4 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
     </dialog>
   );
 }
+

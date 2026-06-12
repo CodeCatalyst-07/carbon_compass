@@ -38,7 +38,8 @@ UserProfile → per-category calculators → CategoryBreakdown[] → aggregate �
 | Icons | Lucide React |
 | Testing | Vitest + React Testing Library |
 | Formatting | Prettier |
-| AI (optional) | Gemini 2.5 Flash Lite via Firebase Cloud Function |
+| E2E Testing | Playwright |
+| AI (optional) | Gemini 2.5 Flash Lite via Firebase Cloud Function (see [setup guide](docs/firebase-setup.md)) |
 
 ## Calculation Methodology
 
@@ -179,6 +180,22 @@ npm install
 - **Diet factor uncertainty.** Daily totals are derived estimates with low confidence. Individual diets vary enormously within each category.
 - **No food waste, goods, or services.** Only four emission categories are covered. Housing, consumer goods, and services are excluded.
 - **No dark mode yet.** Design system tokens are light-mode only.
-- **No E2E tests yet.** Playwright integration is planned for Phase 7.
-- **No Recharts yet.** Chart library inclusion is deferred pending bundle size review in Phase 4.
-- **AI integration not yet implemented.** Firebase Cloud Function is scaffolded in the plan but not built.
+
+## Security Considerations
+
+- **No client-side API keys.** The Gemini API key is managed via Firebase Secrets (`defineSecret`) and only accessible at runtime inside the Cloud Function. It never appears in the client bundle — verified by an automated post-build scan.
+- **In-memory rate limiter (per-instance).** The Cloud Function rate limiter (5 requests / 15 min / IP) is best-effort only. State is per Cloud Functions instance and resets on cold starts. Multiple concurrent instances do not share state. This is a cost/abuse guard for a demo, not a security mechanism.
+- **`maxInstances: 5`** limits concurrent cold starts and cost, but cannot guarantee zero spend on the Blaze plan.
+- **CORS origin allowlist.** The Cloud Function rejects requests from origins not in the `CORS_ORIGINS` environment variable.
+- **AI output rendered as text only.** AI responses are never rendered via `dangerouslySetInnerHTML`. All AI text is displayed as React text nodes.
+- **Zod validation at all boundaries.** localStorage reads, JSON imports, and AI responses are validated with Zod schemas before use.
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Architecture](docs/ARCHITECTURE.md) | System design, data flow, and dependency graph |
+| [Methodology](docs/METHODOLOGY.md) | Calculation formulas, factor sources, and ranking algorithm |
+| [Demo Script](docs/DEMO_SCRIPT.md) | Step-by-step walkthrough for demonstrations |
+| [Firebase Setup](docs/firebase-setup.md) | Deployment guide for AI Cloud Function |
+| [Local Development](docs/local-development.md) | Running locally with or without AI |

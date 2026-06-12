@@ -72,7 +72,7 @@ test.describe('Flow 1: First visit → Onboarding → Dashboard', () => {
     await expect(page.getByText(/Annual estimate/i)).toBeVisible();
     await expect(page.getByText(/Category breakdown/i)).toBeVisible();
     await expect(page.locator('main').getByText(/estimates, not audited/i).first()).toBeVisible();
-    await expect(page.getByText(/AI-powered insights are not yet available/i)).toBeVisible();
+    await expect(page.getByText(/AI-powered insights are not configured/i)).toBeVisible();
   });
 
   test('axe check: onboarding page', async ({ page }) => {

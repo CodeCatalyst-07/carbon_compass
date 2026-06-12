@@ -9,10 +9,10 @@ import { Badge } from '../components/badge';
 import { Tooltip } from '../components/tooltip';
 import { calculateFootprint } from '../../domain/calculator/calculator';
 import { rankActions } from '../../domain/recommendations/ranker';
+import { buildApplicabilityContext } from '../../domain/recommendations/build-context';
 import { buildMapsSearchUrl, buildMapsDirectionsUrl } from '../../domain/recommendations/maps-urls';
 import { formatCO2e } from '../../domain/units';
 import type {
-  ApplicabilityContext,
   RankedAction,
   MapsActionType,
 } from '../../domain/recommendations/types';
@@ -56,36 +56,7 @@ export function ActionsPage() {
     if (!profile) return { context: null, rankedActions: [] };
 
     const result = calculateFootprint(profile);
-    const carEntry = profile.transport.modes.find((m) => m.mode === 'car');
-    const personalKwh = profile.electricity.isPersonalUsage
-      ? profile.electricity.monthlyKwh
-      : profile.electricity.monthlyKwh / Math.max(1, profile.electricity.householdSize);
-
-    const completedIds = new Set<string>();
-    const dismissedIds = new Set<string>();
-    for (const ta of trackedActions) {
-      if (ta.status === 'completed') completedIds.add(ta.actionId);
-      if (ta.status === 'dismissed') dismissedIds.add(ta.actionId);
-    }
-
-    const ctx: ApplicabilityContext = {
-      diet: profile.diet,
-      carKmPerWeek: carEntry?.weeklyDistanceKm ?? 0,
-      usesCar: (carEntry?.weeklyDistanceKm ?? 0) > 0,
-      hasFlights:
-        profile.flights.shortHaulLegs +
-          profile.flights.mediumHaulLegs +
-          profile.flights.longHaulLegs >
-        0,
-      shortHaulLegs: profile.flights.shortHaulLegs,
-      longHaulLegs: profile.flights.longHaulLegs,
-      personalMonthlyKwh: personalKwh,
-      topDriverCategories: result.topDrivers.map((d) => d.category),
-      completedActionIds: completedIds,
-      dismissedActionIds: dismissedIds,
-      effortPreference: profile.personalization.effortPreference,
-      budgetSensitivity: profile.personalization.budgetSensitivity,
-    };
+    const ctx = buildApplicabilityContext(profile, result, trackedActions);
 
     return { context: ctx, rankedActions: rankActions(ctx) };
   }, [profile, trackedActions]);

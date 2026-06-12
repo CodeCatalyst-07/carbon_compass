@@ -1,13 +1,16 @@
 import { useMemo, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router';
-import { Lightbulb, ArrowLeftRight, Camera, PenLine, AlertTriangle, Info } from 'lucide-react';
+import { Lightbulb, ArrowLeftRight, Camera, PenLine, AlertTriangle } from 'lucide-react';
 import { useLocalStore } from '../hooks/use-local-store';
 import { useToast } from '../hooks/use-toast';
 import { Card } from '../components/card';
 import { Button } from '../components/button';
 import { Badge } from '../components/badge';
 import { BarChart, CATEGORY_COLORS, type BarChartItem } from '../components/bar-chart';
+import { AIInsightsPanel } from '../components/ai-insights-panel';
 import { calculateFootprint } from '../../domain/calculator/calculator';
+import { rankActions } from '../../domain/recommendations/ranker';
+import { buildApplicabilityContext } from '../../domain/recommendations/build-context';
 import { formatCO2e } from '../../domain/units';
 import type { FootprintResult, Category } from '../../storage/schemas';
 
@@ -38,6 +41,15 @@ export function DashboardPage() {
   }, [profile]);
 
   const displayUnit = store.data.settings.displayUnit;
+  const trackedActions = store.data.trackedActions;
+
+  // Ranked actions for AI panel
+  const ranked = useMemo(() => {
+    if (!profile || !result) return [];
+
+    const ctx = buildApplicabilityContext(profile, result, trackedActions);
+    return rankActions(ctx);
+  }, [profile, result, trackedActions]);
 
   // Chart data
   const chartItems: BarChartItem[] = useMemo(() => {
@@ -166,19 +178,16 @@ export function DashboardPage() {
         </div>
       </Card>
 
-      {/* ─── AI Unavailable Notice (amendment 12) ─── */}
-      <Card variant="content" className="flex gap-md items-start border border-canvas-soft">
-        <Info size={18} className="text-mute shrink-0 mt-0.5" aria-hidden="true" />
-        <div className="flex flex-col gap-xs">
-          <p className="text-sm font-semibold text-ink">
-            AI-powered insights are not yet available
-          </p>
-          <p className="text-xs text-body">
-            All guidance shown is based on deterministic calculations using published emission
-            factors. Personalized AI explanations will be available in a future update.
-          </p>
-        </div>
-      </Card>
+      {/* ─── AI Insights Panel ─── */}
+      <AIInsightsPanel
+        result={result}
+        rankedActions={ranked}
+        constraints={{
+          reductionGoalPercent: profile.personalization.reductionGoalPercent,
+          effortPreference: profile.personalization.effortPreference,
+          budgetSensitivity: profile.personalization.budgetSensitivity,
+        }}
+      />
 
       {/* ─── Action Buttons ─── */}
       <section aria-labelledby="actions-heading">

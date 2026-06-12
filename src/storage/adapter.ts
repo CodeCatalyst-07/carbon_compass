@@ -307,6 +307,15 @@ export function cacheAIResponse(
   saveData(data, backend);
 }
 
+export function deleteCachedAIResponse(
+  requestHash: string,
+  backend: StorageBackend = browserBackend,
+): void {
+  const data = loadData(backend);
+  data.aiCache = data.aiCache.filter((e) => e.requestHash !== requestHash);
+  saveData(data, backend);
+}
+
 // ─── Export / Import / Delete ───
 
 /**

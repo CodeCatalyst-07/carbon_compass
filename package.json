@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "typecheck": "tsc -b --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"*.{json,js,ts}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"*.{json,js,ts}\""
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"*.{json,js,ts}\"",
+    "secret-scan": "vitest run src/ai/__tests__/no-api-key-in-build.test.ts",
+    "postbuild": "npm run secret-scan"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",

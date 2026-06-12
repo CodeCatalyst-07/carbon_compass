@@ -298,8 +298,9 @@ export function MethodologyPage() {
               <li>No accounts, no login, no cookies (beyond localStorage)</li>
               <li>No analytics or tracking scripts</li>
               <li>
-                If AI features become available, you will need to explicitly opt in. No data leaves
-                your device unless you choose to use them.
+                If you choose to use AI insights, only aggregated category totals, rankings, and
+                preferences are sent to the server — never your name, email, or address. This
+                happens only when you click "Get AI insights."
               </li>
             </ul>
           </div>
