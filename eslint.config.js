@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
-  globalIgnores(['dist', 'functions/lib', 'functions/node_modules', 'functions/dist']),
+  globalIgnores(['dist', 'node_modules', 'server', 'functions', 'packages/ai-core']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -17,6 +17,9 @@ export default defineConfig([
     ],
     languageOptions: {
       globals: globals.browser,
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
   },
 ]);
