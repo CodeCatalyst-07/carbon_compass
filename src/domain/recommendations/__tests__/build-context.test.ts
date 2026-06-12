@@ -30,7 +30,7 @@ function makeProfile(overrides?: Partial<UserProfile>): UserProfile {
   };
 }
 
-function makeResult(overrides?: Partial<FootprintResult>): FootprintResult {
+function makeResult(): FootprintResult {
   return {
     totalAnnualKgCO2e: 5000,
     totalMonthlyKgCO2e: 416.67,

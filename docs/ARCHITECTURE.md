@@ -22,7 +22,7 @@ Carbon Compass is a privacy-first, no-login carbon footprint tracking and coachi
                                ▼
                    ┌─────────────────────┐
                    │  Firebase Cloud Fn   │
-                   │  (Gemini 2.5 Flash)  │
+                   │  (Gemini 2.5 Flash Lite)  │
                    └─────────────────────┘
 ```
 

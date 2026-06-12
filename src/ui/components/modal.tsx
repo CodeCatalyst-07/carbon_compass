@@ -97,4 +97,3 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
     </dialog>
   );
 }
-

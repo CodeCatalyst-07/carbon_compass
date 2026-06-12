@@ -13,6 +13,7 @@ import { buildApplicabilityContext } from '../../domain/recommendations/build-co
 import { buildMapsSearchUrl, buildMapsDirectionsUrl } from '../../domain/recommendations/maps-urls';
 import { formatCO2e } from '../../domain/units';
 import type {
+  ApplicabilityContext,
   RankedAction,
   MapsActionType,
 } from '../../domain/recommendations/types';
