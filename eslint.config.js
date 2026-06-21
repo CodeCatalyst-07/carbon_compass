@@ -5,8 +5,6 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 import sonarjs from 'eslint-plugin-sonarjs';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
-import eslintPluginImport from 'eslint-plugin-import';
-import { fixupPluginRules } from '@eslint/compat';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
@@ -19,9 +17,7 @@ export default defineConfig([
   jsxA11y.flatConfigs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
-    plugins: {
-      import: fixupPluginRules(eslintPluginImport),
-    },
+
     languageOptions: {
       globals: globals.browser,
       parserOptions: {
@@ -79,15 +75,6 @@ export default defineConfig([
       '@typescript-eslint/unbound-method': 'warn',
       '@typescript-eslint/no-dynamic-delete': 'warn',
       '@typescript-eslint/require-await': 'warn',
-      'import/order': [
-        'error',
-        {
-          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'type'],
-          'newlines-between': 'always',
-          alphabetize: { order: 'asc', caseInsensitive: true },
-        },
-      ],
-      'import/no-duplicates': 'error',
     },
   },
   {
@@ -113,7 +100,7 @@ export default defineConfig([
       '@typescript-eslint/require-await': 'warn',
       '@typescript-eslint/restrict-template-expressions': 'warn',
       '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
-      'import/order': 'warn',
+
       'sonarjs/prefer-specific-assertions': 'warn',
     },
   },
