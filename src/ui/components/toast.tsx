@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
+
 import { cn } from '../../lib/cn';
 
 export type ToastVariant = 'info' | 'success' | 'error';
@@ -31,7 +32,9 @@ export function Toast({ message, variant = 'info', duration = 4000, onDismiss }:
       setTimeout(onDismiss, 200); // Allow exit transition
     }, duration);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [duration, onDismiss]);
 
   return (

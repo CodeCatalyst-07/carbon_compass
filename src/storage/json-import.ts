@@ -1,10 +1,10 @@
+import { migrateData } from './migrations';
 import {
   StoredDataSchema,
   ImportDataSchema,
   type StoredData,
   CURRENT_SCHEMA_VERSION,
 } from './schemas';
-import { migrateData } from './migrations';
 
 /** Maximum allowed import file size: 1 MB */
 const MAX_IMPORT_SIZE_BYTES = 1024 * 1024;
@@ -163,7 +163,9 @@ export function readFileAsText(file: File): Promise<string> {
         reject(new Error('Failed to read file as text'));
       }
     };
-    reader.onerror = () => reject(new Error('File read error'));
+    reader.onerror = () => {
+      reject(new Error('File read error'));
+    };
     reader.readAsText(file);
   });
 }

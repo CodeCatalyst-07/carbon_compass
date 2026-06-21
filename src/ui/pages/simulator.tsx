@@ -1,20 +1,22 @@
+import { ArrowRight, AlertTriangle, Check } from 'lucide-react';
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowRight, AlertTriangle, Check } from 'lucide-react';
-import { useLocalStore } from '../hooks/use-local-store';
-import { useToast } from '../hooks/use-toast';
-import { Card } from '../components/card';
-import { Button } from '../components/button';
-import { Badge } from '../components/badge';
-import { SegmentedControl } from '../components/segmented-control';
-import { NumberInput } from '../components/number-input';
-import { SelectInput } from '../components/select-input';
-import { simulateTransportSwap } from '../../domain/recommendations/swap-simulator';
+
 import { calculateFootprint } from '../../domain/calculator/calculator';
 import { calculateDiet } from '../../domain/calculator/diet';
 import { calculateElectricity } from '../../domain/calculator/electricity';
 import { calculateFlights } from '../../domain/calculator/flights';
+import { simulateTransportSwap } from '../../domain/recommendations/swap-simulator';
 import { formatCO2e } from '../../domain/units';
+import { Badge } from '../components/badge';
+import { Button } from '../components/button';
+import { Card } from '../components/card';
+import { NumberInput } from '../components/number-input';
+import { SegmentedControl } from '../components/segmented-control';
+import { SelectInput } from '../components/select-input';
+import { useLocalStore } from '../hooks/use-local-store';
+import { useToast } from '../hooks/use-toast';
+
 import type { TransportMode, DietProfile, UserProfile } from '../../storage/schemas';
 
 type SimCategory = 'transport' | 'diet' | 'electricity' | 'flights';
@@ -258,10 +260,10 @@ export function SimulatorPage() {
       <SegmentedControl
         legend="What would you like to change?"
         options={[
-          { value: 'transport' as SimCategory, label: 'Transport' },
-          { value: 'diet' as SimCategory, label: 'Diet' },
-          { value: 'electricity' as SimCategory, label: 'Electricity' },
-          { value: 'flights' as SimCategory, label: 'Flights' },
+          { value: 'transport', label: 'Transport' },
+          { value: 'diet', label: 'Diet' },
+          { value: 'electricity', label: 'Electricity' },
+          { value: 'flights', label: 'Flights' },
         ]}
         value={category}
         onChange={handleCategoryChange}
@@ -277,13 +279,17 @@ export function SimulatorPage() {
               label="Current mode"
               options={TRANSPORT_OPTIONS}
               value={currentMode}
-              onChange={(e) => setCurrentMode(e.target.value as TransportMode)}
+              onChange={(e) => {
+                setCurrentMode(e.target.value as TransportMode);
+              }}
             />
             <SelectInput
               label="Switch to"
               options={TRANSPORT_OPTIONS.filter((o) => o.value !== currentMode)}
               value={altMode}
-              onChange={(e) => setAltMode(e.target.value as TransportMode)}
+              onChange={(e) => {
+                setAltMode(e.target.value as TransportMode);
+              }}
             />
             <NumberInput
               label="Weekly distance"
@@ -337,7 +343,9 @@ export function SimulatorPage() {
             <NumberInput
               label="Alternative short-haul legs"
               value={altShortHaul}
-              onChange={(v) => setAltShortHaul(Math.round(v))}
+              onChange={(v) => {
+                setAltShortHaul(Math.round(v));
+              }}
               min={0}
               max={200}
               step={1}
@@ -346,7 +354,9 @@ export function SimulatorPage() {
             <NumberInput
               label="Alternative medium-haul legs"
               value={altMediumHaul}
-              onChange={(v) => setAltMediumHaul(Math.round(v))}
+              onChange={(v) => {
+                setAltMediumHaul(Math.round(v));
+              }}
               min={0}
               max={200}
               step={1}
@@ -355,7 +365,9 @@ export function SimulatorPage() {
             <NumberInput
               label="Alternative long-haul legs"
               value={altLongHaul}
-              onChange={(v) => setAltLongHaul(Math.round(v))}
+              onChange={(v) => {
+                setAltLongHaul(Math.round(v));
+              }}
               min={0}
               max={200}
               step={1}

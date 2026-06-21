@@ -11,10 +11,12 @@
  * the app works fully without it.
  */
 export const AI_ENDPOINT: string =
-  (typeof window !== 'undefined' &&
-    (window as unknown as { __VITE_AI_ENDPOINT_OVERRIDE__?: string })
-      .__VITE_AI_ENDPOINT_OVERRIDE__) ||
-  (import.meta.env.VITE_AI_ENDPOINT ?? '');
+  (typeof window !== 'undefined'
+    ? (window as unknown as { __VITE_AI_ENDPOINT_OVERRIDE__?: string })
+        .__VITE_AI_ENDPOINT_OVERRIDE__
+    : undefined) ??
+  import.meta.env.VITE_AI_ENDPOINT ??
+  '';
 
 /**
  * Client-side cooldown between AI requests (ms).

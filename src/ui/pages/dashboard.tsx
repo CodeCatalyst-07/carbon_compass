@@ -1,17 +1,19 @@
+import { Lightbulb, ArrowLeftRight, Camera, PenLine, AlertTriangle } from 'lucide-react';
 import { useMemo, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router';
-import { Lightbulb, ArrowLeftRight, Camera, PenLine, AlertTriangle } from 'lucide-react';
-import { useLocalStore } from '../hooks/use-local-store';
-import { useToast } from '../hooks/use-toast';
-import { Card } from '../components/card';
-import { Button } from '../components/button';
+
+import { calculateFootprint } from '../../domain/calculator/calculator';
+import { buildApplicabilityContext } from '../../domain/recommendations/build-context';
+import { rankActions } from '../../domain/recommendations/ranker';
+import { formatCO2e } from '../../domain/units';
+import { AIInsightsPanel } from '../components/ai-insights-panel';
 import { Badge } from '../components/badge';
 import { BarChart, CATEGORY_COLORS, type BarChartItem } from '../components/bar-chart';
-import { AIInsightsPanel } from '../components/ai-insights-panel';
-import { calculateFootprint } from '../../domain/calculator/calculator';
-import { rankActions } from '../../domain/recommendations/ranker';
-import { buildApplicabilityContext } from '../../domain/recommendations/build-context';
-import { formatCO2e } from '../../domain/units';
+import { Button } from '../components/button';
+import { Card } from '../components/card';
+import { useLocalStore } from '../hooks/use-local-store';
+import { useToast } from '../hooks/use-toast';
+
 import type { FootprintResult, Category } from '../../storage/schemas';
 
 const CATEGORY_LABELS: Record<Category, string> = {

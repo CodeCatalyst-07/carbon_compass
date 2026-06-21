@@ -1,3 +1,4 @@
+import { migrateOrDefault } from './migrations';
 import {
   StoredDataSchema,
   createDefaultStoredData,
@@ -8,7 +9,6 @@ import {
   type Settings,
   type AICacheEntry,
 } from './schemas';
-import { migrateOrDefault } from './migrations';
 
 const STORAGE_KEY = 'carbon-compass-data';
 const MAX_SNAPSHOTS = 52;
@@ -28,8 +28,12 @@ export interface StorageBackend {
 /** Default browser localStorage backend. */
 const browserBackend: StorageBackend = {
   getItem: (key) => localStorage.getItem(key),
-  setItem: (key, value) => localStorage.setItem(key, value),
-  removeItem: (key) => localStorage.removeItem(key),
+  setItem: (key, value) => {
+    localStorage.setItem(key, value);
+  },
+  removeItem: (key) => {
+    localStorage.removeItem(key);
+  },
 };
 
 // ─── Event System ───

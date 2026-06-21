@@ -1,13 +1,15 @@
+import { Trash2, Camera, TrendingDown, TrendingUp, Minus } from 'lucide-react';
 import { useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { Trash2, Camera, TrendingDown, TrendingUp, Minus } from 'lucide-react';
+
+import { calculateFootprint } from '../../domain/calculator/calculator';
+import { formatCO2e } from '../../domain/units';
+import { Button } from '../components/button';
+import { Card } from '../components/card';
+import { Modal } from '../components/modal';
 import { useLocalStore } from '../hooks/use-local-store';
 import { useToast } from '../hooks/use-toast';
-import { Card } from '../components/card';
-import { Button } from '../components/button';
-import { Modal } from '../components/modal';
-import { formatCO2e } from '../../domain/units';
-import { calculateFootprint } from '../../domain/calculator/calculator';
+
 import type { Snapshot, Category } from '../../storage/schemas';
 
 const CATEGORY_LABELS: Record<Category, string> = {
@@ -219,7 +221,9 @@ export function ProgressPage() {
       {/* Delete confirmation modal */}
       <Modal
         isOpen={deleteTarget !== null}
-        onClose={() => setDeleteTarget(null)}
+        onClose={() => {
+          setDeleteTarget(null);
+        }}
         title="Delete snapshot?"
       >
         <div className="flex flex-col gap-lg">
@@ -228,7 +232,12 @@ export function ProgressPage() {
             undone.
           </p>
           <div className="flex justify-end gap-md">
-            <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setDeleteTarget(null);
+              }}
+            >
               Cancel
             </Button>
             <Button
@@ -277,7 +286,9 @@ function SnapshotRow({
           </span>
         </div>
         <button
-          onClick={() => onDelete(snapshot.id)}
+          onClick={() => {
+            onDelete(snapshot.id);
+          }}
           className="text-mute hover:text-negative p-xs rounded-lg focus-visible:outline-2 focus-visible:outline-primary transition-colors"
           aria-label={`Delete snapshot from ${dateStr}`}
         >

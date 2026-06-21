@@ -12,6 +12,7 @@
 
 import { AI_ENDPOINT, isAIConfigured } from './config';
 import { AIInsightsResponseSchema } from './types';
+
 import type { AIInsightsRequest, AIInsightsResponse, AIInsightsErrorKind } from './types';
 
 /** Prompt version — must match backend PROMPT_VERSION for cache coherence. */
@@ -50,7 +51,9 @@ export const httpTransport: AITransport = {
     }
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20_000);
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, 20_000);
 
     try {
       const response = await fetch(AI_ENDPOINT, {

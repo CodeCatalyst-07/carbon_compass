@@ -1,4 +1,5 @@
 import { useSyncExternalStore, useCallback, useState } from 'react';
+
 import {
   subscribe,
   loadData,
@@ -12,6 +13,7 @@ import {
   exportDataAsJSON,
   importData,
 } from '../../storage/adapter';
+
 import type {
   StoredData,
   UserProfile,
@@ -45,18 +47,26 @@ export function useLocalStore(): LocalStoreReturn {
 
   return {
     data,
-    saveProfile: useCallback((profile: UserProfile) => saveProfile(profile), []),
-    addSnapshot: useCallback((snapshot: Snapshot) => addSnapshot(snapshot), []),
+    saveProfile: useCallback((profile: UserProfile) => {
+      saveProfile(profile);
+    }, []),
+    addSnapshot: useCallback((snapshot: Snapshot) => {
+      addSnapshot(snapshot);
+    }, []),
     deleteSnapshot: useCallback((snapshotId: string) => deleteSnapshot(snapshotId), []),
-    setActionStatus: useCallback(
-      (actionId: string, status: ActionStatus, notes?: string) =>
-        setActionStatus(actionId, status, notes),
-      [],
-    ),
-    updateSettings: useCallback((updates: Partial<Settings>) => updateSettings(updates), []),
-    deleteAllData: useCallback(() => deleteAllData(), []),
+    setActionStatus: useCallback((actionId: string, status: ActionStatus, notes?: string) => {
+      setActionStatus(actionId, status, notes);
+    }, []),
+    updateSettings: useCallback((updates: Partial<Settings>) => {
+      updateSettings(updates);
+    }, []),
+    deleteAllData: useCallback(() => {
+      deleteAllData();
+    }, []),
     exportDataAsJSON: useCallback(() => exportDataAsJSON(), []),
-    importData: useCallback((d: StoredData) => importData(d), []),
+    importData: useCallback((d: StoredData) => {
+      importData(d);
+    }, []),
   };
 }
 

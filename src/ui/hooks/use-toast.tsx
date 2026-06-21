@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+
 import { Toast, type ToastVariant } from '../components/toast';
 
 interface ToastItem {
@@ -39,7 +40,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       >
         {toasts.map((t) => (
           <div key={t.id} className="pointer-events-auto">
-            <Toast message={t.message} variant={t.variant} onDismiss={() => removeToast(t.id)} />
+            <Toast
+              message={t.message}
+              variant={t.variant}
+              onDismiss={() => {
+                removeToast(t.id);
+              }}
+            />
           </div>
         ))}
       </div>

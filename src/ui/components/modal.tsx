@@ -1,4 +1,5 @@
 import { useEffect, useRef, useId, type ReactNode } from 'react';
+
 import { cn } from '../../lib/cn';
 
 interface ModalProps {
@@ -38,9 +39,13 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
     const dialog = dialogRef.current;
     if (!dialog) return;
 
-    const handleClose = () => onClose();
+    const handleClose = () => {
+      onClose();
+    };
     dialog.addEventListener('close', handleClose);
-    return () => dialog.removeEventListener('close', handleClose);
+    return () => {
+      dialog.removeEventListener('close', handleClose);
+    };
   }, [onClose]);
 
   // Handle backdrop click

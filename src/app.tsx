@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
-import { ToastProvider } from './ui/hooks/use-toast';
+
 import { useLocalStore, useRecoveryCheck } from './ui/hooks/use-local-store';
-import { useToast } from './ui/hooks/use-toast';
+import { ToastProvider, useToast } from './ui/hooks/use-toast';
 import { AppShell } from './ui/layouts/app-shell';
-import { OnboardingPage } from './ui/pages/onboarding';
-import { DashboardPage } from './ui/pages/dashboard';
 import { ActionsPage } from './ui/pages/actions';
-import { SimulatorPage } from './ui/pages/simulator';
-import { ProgressPage } from './ui/pages/progress';
+import { DashboardPage } from './ui/pages/dashboard';
 import { MethodologyPage } from './ui/pages/methodology';
+import { OnboardingPage } from './ui/pages/onboarding';
+import { ProgressPage } from './ui/pages/progress';
+import { SimulatorPage } from './ui/pages/simulator';
 
 function RootRedirect() {
   const { data } = useLocalStore();

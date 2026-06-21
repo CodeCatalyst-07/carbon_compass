@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest';
 
 // jsdom does not implement scrollTo — mock it to suppress
 // "Not implemented: Window's scrollTo() method" warnings.
-window.scrollTo = (() => {}) as typeof window.scrollTo;
+window.scrollTo = () => {};
 
 // jsdom does not implement HTMLDialogElement.showModal / .close.
 // Mock them so components using <dialog> can render in tests.

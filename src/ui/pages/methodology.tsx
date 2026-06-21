@@ -1,15 +1,17 @@
+import { Download, Upload, Trash2, ExternalLink, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useState, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { Download, Upload, Trash2, ExternalLink, ShieldCheck, AlertTriangle } from 'lucide-react';
-import { useLocalStore } from '../hooks/use-local-store';
-import { useToast } from '../hooks/use-toast';
-import { Card } from '../components/card';
-import { Button } from '../components/button';
-import { Badge } from '../components/badge';
-import { Modal } from '../components/modal';
+
 import { FACTOR_REGISTRY } from '../../domain/factors/registry';
 import { exportSnapshotsAsCSV } from '../../storage/csv-export';
 import { previewImport } from '../../storage/json-import';
+import { Badge } from '../components/badge';
+import { Button } from '../components/button';
+import { Card } from '../components/card';
+import { Modal } from '../components/modal';
+import { useLocalStore } from '../hooks/use-local-store';
+import { useToast } from '../hooks/use-toast';
+
 import type { StoredData } from '../../storage/schemas';
 
 /**
@@ -382,7 +384,9 @@ export function MethodologyPage() {
             </p>
             <Button
               variant="tertiary"
-              onClick={() => setShowClearModal(true)}
+              onClick={() => {
+                setShowClearModal(true);
+              }}
               className="self-start text-negative border-negative hover:bg-negative/10"
             >
               <Trash2 size={14} aria-hidden="true" />
@@ -395,7 +399,9 @@ export function MethodologyPage() {
       {/* ─── Import Confirmation Modal (amendment 7) ─── */}
       <Modal
         isOpen={importPreview !== null}
-        onClose={() => setImportPreview(null)}
+        onClose={() => {
+          setImportPreview(null);
+        }}
         title="Confirm import"
       >
         <div className="flex flex-col gap-lg">
@@ -410,7 +416,12 @@ export function MethodologyPage() {
             </Card>
           )}
           <div className="flex justify-end gap-md">
-            <Button variant="secondary" onClick={() => setImportPreview(null)}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setImportPreview(null);
+              }}
+            >
               Cancel
             </Button>
             <Button onClick={handleConfirmImport}>
@@ -424,7 +435,9 @@ export function MethodologyPage() {
       {/* ─── Clear All Confirmation Modal (amendment 8) ─── */}
       <Modal
         isOpen={showClearModal}
-        onClose={() => setShowClearModal(false)}
+        onClose={() => {
+          setShowClearModal(false);
+        }}
         title="Clear all data?"
       >
         <div className="flex flex-col gap-lg">
@@ -437,7 +450,12 @@ export function MethodologyPage() {
             </p>
           </div>
           <div className="flex justify-end gap-md">
-            <Button variant="secondary" onClick={() => setShowClearModal(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setShowClearModal(false);
+              }}
+            >
               Cancel
             </Button>
             <Button

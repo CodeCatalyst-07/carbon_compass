@@ -17,7 +17,9 @@ export function useReducedMotion(): boolean {
     };
 
     mql.addEventListener('change', handler);
-    return () => mql.removeEventListener('change', handler);
+    return () => {
+      mql.removeEventListener('change', handler);
+    };
   }, []);
 
   return prefersReduced;

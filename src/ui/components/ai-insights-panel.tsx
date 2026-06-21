@@ -11,17 +11,20 @@
  * States: idle (pre-request), loading, success, error variants, cooldown.
  */
 
+import { Sparkles, AlertCircle, WifiOff, Clock, Shield, Loader2, CheckCircle2 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { Sparkles, AlertCircle, WifiOff, Clock, Shield, Loader2, CheckCircle2 } from 'lucide-react';
-import { Card } from './card';
-import { Button } from './button';
-import { Badge } from './badge';
-import { useAIInsights } from '../../ai/use-ai-insights';
+
 import { isAIConfigured } from '../../ai/config';
+import { useAIInsights } from '../../ai/use-ai-insights';
+
+import { Badge } from './badge';
+import { Button } from './button';
+import { Card } from './card';
+
 import type { AIInsightsRequest, AIInsightsErrorKind } from '../../ai/types';
-import type { FootprintResult } from '../../storage/schemas';
 import type { RankedAction } from '../../domain/recommendations/types';
+import type { FootprintResult } from '../../storage/schemas';
 
 interface AIInsightsPanelProps {
   /** The deterministic footprint result. */

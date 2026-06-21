@@ -1,5 +1,3 @@
-import { useState, useRef, useCallback, useEffect, type ReactNode } from 'react';
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router';
 import {
   BarChart3,
   Compass,
@@ -10,6 +8,9 @@ import {
   Menu,
   X,
 } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect, type ReactNode } from 'react';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router';
+
 import { cn } from '../../lib/cn';
 import { SkipLink } from '../components/skip-link';
 
@@ -88,7 +89,9 @@ export function AppShell() {
       }
     };
     document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    return () => {
+      document.removeEventListener('keydown', handler);
+    };
   }, [mobileMenuOpen]);
 
   // Focus trap inside mobile menu
@@ -141,7 +144,9 @@ export function AppShell() {
           {/* Mobile hamburger */}
           <button
             ref={menuButtonRef}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => {
+              setMobileMenuOpen(!mobileMenuOpen);
+            }}
             className={cn(
               'md:hidden flex items-center justify-center w-10 h-10 rounded-xl',
               'text-ink hover:bg-canvas-soft',

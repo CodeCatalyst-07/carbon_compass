@@ -1,24 +1,26 @@
+import { Compass, Sparkles } from 'lucide-react';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { Compass, Sparkles } from 'lucide-react';
-import { useLocalStore } from '../hooks/use-local-store';
-import { useToast } from '../hooks/use-toast';
-import { Button } from '../components/button';
-import { Card } from '../components/card';
-import { NumberInput } from '../components/number-input';
-import { SegmentedControl } from '../components/segmented-control';
-import { Toggle } from '../components/toggle';
-import { ProgressBar } from '../components/progress-bar';
-import { Tooltip } from '../components/tooltip';
+
 import { calculateFootprint } from '../../domain/calculator/calculator';
-import { DEMO_PROFILE, DEMO_PROFILE_LABEL } from '../../lib/demo-profile';
-import type { UserProfile, TransportMode, DietProfile } from '../../storage/schemas';
 import {
   MAX_WEEKLY_DISTANCE_KM,
   MAX_MONTHLY_KWH,
   MAX_FLIGHT_LEGS_PER_YEAR,
   MAX_HOUSEHOLD_SIZE,
 } from '../../domain/units';
+import { DEMO_PROFILE, DEMO_PROFILE_LABEL } from '../../lib/demo-profile';
+import { Button } from '../components/button';
+import { Card } from '../components/card';
+import { NumberInput } from '../components/number-input';
+import { ProgressBar } from '../components/progress-bar';
+import { SegmentedControl } from '../components/segmented-control';
+import { Toggle } from '../components/toggle';
+import { Tooltip } from '../components/tooltip';
+import { useLocalStore } from '../hooks/use-local-store';
+import { useToast } from '../hooks/use-toast';
+
+import type { UserProfile, TransportMode, DietProfile } from '../../storage/schemas';
 
 // ─── Form State ───
 
@@ -349,7 +351,9 @@ export function OnboardingPage() {
                       },
                     ]}
                     value={form.displayUnit}
-                    onChange={(v) => setForm((prev) => ({ ...prev, displayUnit: v }))}
+                    onChange={(v) => {
+                      setForm((prev) => ({ ...prev, displayUnit: v }));
+                    }}
                   />
 
                   {!isReturning && (
@@ -399,7 +403,9 @@ export function OnboardingPage() {
                         <input
                           type="checkbox"
                           checked={t.enabled}
-                          onChange={(e) => updateTransport(t.mode, 'enabled', e.target.checked)}
+                          onChange={(e) => {
+                            updateTransport(t.mode, 'enabled', e.target.checked);
+                          }}
                           className="w-5 h-5 rounded-sm accent-primary focus-visible:outline-2 focus-visible:outline-primary"
                         />
                         <span className="text-sm font-semibold text-ink">{t.label}</span>
@@ -410,7 +416,9 @@ export function OnboardingPage() {
                             id={`transport-${t.mode}`}
                             label={`Weekly ${t.label.toLowerCase()} distance`}
                             value={t.weeklyDistanceKm}
-                            onChange={(v) => updateTransport(t.mode, 'weeklyDistanceKm', v)}
+                            onChange={(v) => {
+                              updateTransport(t.mode, 'weeklyDistanceKm', v);
+                            }}
                             min={0}
                             max={MAX_WEEKLY_DISTANCE_KM}
                             step={5}
@@ -463,7 +471,9 @@ export function OnboardingPage() {
                   <Toggle
                     label="This is my personal usage only"
                     checked={form.isPersonalUsage}
-                    onChange={(v) => setForm((prev) => ({ ...prev, isPersonalUsage: v }))}
+                    onChange={(v) => {
+                      setForm((prev) => ({ ...prev, isPersonalUsage: v }));
+                    }}
                     hint="Turn off if this is your whole household's usage"
                   />
 
@@ -505,23 +515,25 @@ export function OnboardingPage() {
                   legend="Diet profile"
                   options={[
                     {
-                      value: 'heavy-meat' as DietProfile,
+                      value: 'heavy-meat',
                       label: 'Regular meat eater',
                       description: 'Meat most days',
                     },
                     {
-                      value: 'vegetarian' as DietProfile,
+                      value: 'vegetarian',
                       label: 'Vegetarian',
                       description: 'No meat, dairy & eggs OK',
                     },
                     {
-                      value: 'vegan' as DietProfile,
+                      value: 'vegan',
                       label: 'Vegan',
                       description: 'Fully plant-based',
                     },
                   ]}
                   value={form.diet}
-                  onChange={(v) => setForm((prev) => ({ ...prev, diet: v }))}
+                  onChange={(v) => {
+                    setForm((prev) => ({ ...prev, diet: v }));
+                  }}
                 />
 
                 <p className="text-xs text-mute">
@@ -623,7 +635,9 @@ export function OnboardingPage() {
                       },
                     ]}
                     value={form.effortPreference}
-                    onChange={(v) => setForm((prev) => ({ ...prev, effortPreference: v }))}
+                    onChange={(v) => {
+                      setForm((prev) => ({ ...prev, effortPreference: v }));
+                    }}
                   />
 
                   <SegmentedControl
@@ -642,20 +656,22 @@ export function OnboardingPage() {
                       },
                     ]}
                     value={form.budgetSensitivity}
-                    onChange={(v) => setForm((prev) => ({ ...prev, budgetSensitivity: v }))}
+                    onChange={(v) => {
+                      setForm((prev) => ({ ...prev, budgetSensitivity: v }));
+                    }}
                   />
 
                   <div className="flex flex-col gap-sm">
                     <Toggle
                       label="Set a reduction goal"
                       checked={form.hasReductionGoal}
-                      onChange={(v) =>
+                      onChange={(v) => {
                         setForm((prev) => ({
                           ...prev,
                           hasReductionGoal: v,
                           reductionGoalPercent: v ? 20 : null,
-                        }))
-                      }
+                        }));
+                      }}
                       hint="Optional — target percentage to reduce your footprint"
                     />
                     {form.hasReductionGoal && (

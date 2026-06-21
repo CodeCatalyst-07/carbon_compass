@@ -1,17 +1,19 @@
+import { ExternalLink, Check, Clock, X, MapPin } from 'lucide-react';
 import { useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { ExternalLink, Check, Clock, X, MapPin } from 'lucide-react';
-import { useLocalStore } from '../hooks/use-local-store';
-import { useToast } from '../hooks/use-toast';
-import { Card } from '../components/card';
-import { Button } from '../components/button';
-import { Badge } from '../components/badge';
-import { Tooltip } from '../components/tooltip';
+
 import { calculateFootprint } from '../../domain/calculator/calculator';
-import { rankActions } from '../../domain/recommendations/ranker';
 import { buildApplicabilityContext } from '../../domain/recommendations/build-context';
 import { buildMapsSearchUrl, buildMapsDirectionsUrl } from '../../domain/recommendations/maps-urls';
+import { rankActions } from '../../domain/recommendations/ranker';
 import { formatCO2e } from '../../domain/units';
+import { Badge } from '../components/badge';
+import { Button } from '../components/button';
+import { Card } from '../components/card';
+import { Tooltip } from '../components/tooltip';
+import { useLocalStore } from '../hooks/use-local-store';
+import { useToast } from '../hooks/use-toast';
+
 import type {
   ApplicabilityContext,
   RankedAction,
@@ -246,19 +248,37 @@ function ActionCard({
       {/* Status actions */}
       <div className="flex flex-wrap gap-sm pt-sm border-t border-canvas-soft">
         {status !== 'planned' && status !== 'completed' && (
-          <Button size="sm" variant="secondary" onClick={() => onSetStatus(action.id, 'planned')}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              onSetStatus(action.id, 'planned');
+            }}
+          >
             <Clock size={14} aria-hidden="true" />
             Plan this
           </Button>
         )}
         {status !== 'completed' && (
-          <Button size="sm" variant="primary" onClick={() => onSetStatus(action.id, 'completed')}>
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={() => {
+              onSetStatus(action.id, 'completed');
+            }}
+          >
             <Check size={14} aria-hidden="true" />
             Mark complete
           </Button>
         )}
         {status !== 'dismissed' && status !== 'completed' && (
-          <Button size="sm" variant="tertiary" onClick={() => onSetStatus(action.id, 'dismissed')}>
+          <Button
+            size="sm"
+            variant="tertiary"
+            onClick={() => {
+              onSetStatus(action.id, 'dismissed');
+            }}
+          >
             <X size={14} aria-hidden="true" />
             Dismiss
           </Button>

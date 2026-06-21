@@ -9,11 +9,13 @@
 
 import { generateCacheKey } from '../lib/hash';
 import { getCachedAIResponse, cacheAIResponse, deleteCachedAIResponse } from '../storage/adapter';
-import type { StorageBackend } from '../storage/adapter';
-import { AI_CACHE_TTL_MS } from './config';
+
 import { PROMPT_VERSION } from './adapter';
+import { AI_CACHE_TTL_MS } from './config';
 import { AIInsightsResponseSchema } from './types';
+
 import type { AIInsightsResponse, AIInsightsRequest } from './types';
+import type { StorageBackend } from '../storage/adapter';
 
 /**
  * Generate a cache key for a given AI request.

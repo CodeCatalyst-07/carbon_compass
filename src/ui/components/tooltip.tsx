@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect, useCallback, useId } from 'react';
 import { Info } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback, useId } from 'react';
+
 import { cn } from '../../lib/cn';
 
 interface TooltipProps {
@@ -26,7 +27,9 @@ export function Tooltip({ content, className }: TooltipProps) {
   const tooltipId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const open = useCallback(() => setIsOpen(true), []);
+  const open = useCallback(() => {
+    setIsOpen(true);
+  }, []);
   const close = useCallback(() => {
     setIsOpen(false);
     setIsPinned(false);
@@ -75,7 +78,9 @@ export function Tooltip({ content, className }: TooltipProps) {
       }
     };
     document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    return () => {
+      document.removeEventListener('keydown', handler);
+    };
   }, [isOpen, close]);
 
   // Click outside: close pinned tooltip

@@ -87,6 +87,12 @@ Carbon Compass prioritises deterministic correctness, strict type safety, and ex
 * The `@carbon-compass/ai-core` shared package is the single source of truth for backend AI logic.
 * A `postbuild` secret-scan test ensures no API keys leak into the client bundle.
 
+**Code Quality Upgrades:**
+* ESLint upgraded to `strictTypeChecked` with SonarJS (cognitive-complexity gate: max 15) and `jsx-a11y` accessibility lint.
+* Coverage thresholds enforced in CI across all packages.
+* E2E tests now run in CI as a required quality gate.
+* `tsconfig.test.json` added to isolate test compilation without weakening application strict mode.
+
 ### Quality Commands
 
 | Command | Scope |
@@ -107,7 +113,8 @@ GitHub Actions CI runs on every push to `main` and on pull requests. Four indepe
 
 | Job | What It Checks |
 |---|---|
-| `frontend-quality` | Format, typecheck, lint, 255 tests, production build + secret scan |
+| `frontend-quality` | Format, typecheck, lint, 255 tests with coverage enforcement (statements: 85%, branches: 80%, functions: 85%, lines: 85%), production build + secret scan |
+| `e2e-tests` | Playwright E2E suite (43 tests) with Axe accessibility audits, desktop & mobile viewports, artifact upload on failure |
 | `ai-core-quality` | Format, typecheck, lint, 76 tests, build |
 | `server-quality` | Builds ai-core → format, typecheck, lint, 12 tests, build |
 | `functions-quality` | Builds ai-core → format, typecheck, lint, 10 tests, build |
@@ -267,7 +274,7 @@ The project maintains a comprehensive automated testing suite across the entire 
 |---|---|---|---|
 | Playwright E2E | 43 | Onboarding flows, dashboard updates, data import/export, accessibility (Axe audits), desktop + mobile viewports | `npx playwright test` |
 
-**Grand total: 396 automated tests.**
+**Grand total: 396 automated tests.** (Note: `npm test` now runs with coverage reporting via `@vitest/coverage-v8`).
 
 All unit and integration tests run in CI on every push and pull request. Playwright E2E tests are maintained as a local development suite.
 

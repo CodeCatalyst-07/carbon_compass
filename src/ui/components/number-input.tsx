@@ -1,5 +1,6 @@
-import { forwardRef, useId } from 'react';
 import { Minus, Plus } from 'lucide-react';
+import { forwardRef, useId } from 'react';
+
 import { cn } from '../../lib/cn';
 
 interface NumberInputProps {
@@ -70,7 +71,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
         <button
           type="button"
           onClick={handleDecrement}
-          disabled={disabled || value <= min}
+          disabled={disabled ?? value <= min}
           className={cn(
             'flex shrink-0 items-center justify-center w-10 h-10 rounded-xl',
             'bg-canvas-soft text-ink hover:bg-primary-pale',
@@ -117,7 +118,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
         <button
           type="button"
           onClick={handleIncrement}
-          disabled={disabled || (max !== undefined && value >= max)}
+          disabled={disabled ?? (max !== undefined && value >= max)}
           className={cn(
             'flex shrink-0 items-center justify-center w-10 h-10 rounded-xl',
             'bg-canvas-soft text-ink hover:bg-primary-pale',

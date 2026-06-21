@@ -1,4 +1,5 @@
 import { useId } from 'react';
+
 import { cn } from '../../lib/cn';
 
 interface SegmentOption<T extends string> {
@@ -65,7 +66,9 @@ export function SegmentedControl<T extends string>({
                 name={groupName}
                 value={opt.value}
                 checked={isSelected}
-                onChange={() => onChange(opt.value)}
+                onChange={() => {
+                  onChange(opt.value);
+                }}
                 disabled={disabled}
                 className="sr-only"
               />

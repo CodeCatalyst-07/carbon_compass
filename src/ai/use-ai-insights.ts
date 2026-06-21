@@ -9,9 +9,11 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { AI_COOLDOWN_MS } from './config';
-import { lookupCache, storeInCache } from './cache';
+
 import { httpTransport, AIAdapterError } from './adapter';
+import { lookupCache, storeInCache } from './cache';
+import { AI_COOLDOWN_MS } from './config';
+
 import type { AITransport } from './adapter';
 import type { AIInsightsRequest, AIInsightsStatus, AIInsightsErrorKind } from './types';
 
